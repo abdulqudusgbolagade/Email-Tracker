@@ -1,0 +1,56 @@
+# Validation report
+
+Validated on Linux with Node.js 24.19.0 and npm 11.9.0, on 23 October 2026. These results describe this machine and local test integrations. No live Hostinger authentication, prospect email or public Cloudflare deployment was performed.
+
+| Check | Result |
+| --- | --- |
+| Application unit/integration suite | **47 passed**, including a real local SMTP sink, temporary SQLite databases, authenticated API requests and mocked IMAP reconnection |
+| Cloudflare Worker/D1 suite | **7 passed** in the real local Workers runtime with D1 bindings |
+| Chromium end-to-end suite | **8 passed**: four workflows on desktop and mobile viewports |
+| Type checking | Application, Next.js route types, Worker and tests passed |
+| ESLint | Passed |
+| Production build | Passed |
+| Locked installation | `npm ci` passed; official engine checksum verification retained |
+| Database initialization | Two committed migrations applied; repeat setup reports no pending migrations |
+| Consistent backup/restore | Automated test restored a database containing records and passed SQLite integrity checking |
+| Production startup | Web process and independent job runner started; live database health returned 200 and runner heartbeat was recent |
+| Access boundary | Login page returned 200; private page redirected to login; anonymous data/export access rejected |
+| Live database fixture isolation | Zero owner, prospect, message or send-operation fixtures seeded into the actual application database |
+
+## Behaviors exercised
+
+- Session hashing/expiry, incorrect-password rejection, login throttling, same-origin/CSRF rejection, protected reads/exports/mutations and authenticated credential encryption.
+- Email normalization, duplicate prevention, suppression persistence, CSV row errors, campaign-reference validation before import and spreadsheet-safe exports.
+- Sanitized rich text, escaped personalization, missing-placeholder rejection, plain-text alternative, signature/opt-out footer and one pixel only in outbound MIME.
+- Concurrent confirmation, immutable revisions, idempotent retry after acceptance, test-recipient enforcement, rolling limits, explicit SMTP rejection and ambiguous network outcomes.
+- Sent-folder discovery, provider-saved copy detection, original-MIME append, interrupted-append uncertainty and no SMTP resubmission for copy failures.
+- Header-based threading with sender matching, subject-only mismatch, UIDVALIDITY changes, replayed imports, interrupted synchronization recovery, monotonic checkpoints, automatic responses and delivery-status notices.
+- Calendar-day reminders across timezones/DST, one pending reminder per conversation, accepted-send postprocessing recovery, human-reply cancellation and unsubscribe suppression.
+- Unpredictable-token validation, proxy/automation classifications, GIF response under logging failure, HMAC expiry/tamper/replay rejection, cursor pages, event deduplication, unsubscribe GET/POST separation, deletion and retention cleanup.
+- Desktop/mobile navigation, actual prospect creation/editing, personalized draft preview, confirmation gating, blocked unconfigured sending, settings persistence, campaign creation and CSV import.
+
+The mobile checks exposed long-dialog hit-target and horizontal-table problems during development; bounded mobile dialogs, explicit form labels and responsive record cards resolved them. The final full browser run passed.
+
+## Reproducibility and retained state
+
+The npm cache and Linux Prisma engine cache use ignored directories inside the workspace. The verified engine's SHA-256 matches its cached official checksum. No TLS, checksum, signature or assertion checks were disabled. The isolated SMTP sink intentionally uses an unencrypted loopback transport; the application transport always requires verified TLS or STARTTLS.
+
+The retained filesystem includes dependencies, generated Prisma client, production build, an empty migrated live database and a locally generated encryption key in ignored `.env`. Live processes must restart in a new task. No owner account or real mailbox password was invented. The owner must run interactive setup before signing in.
+
+## Unrun external checks and limits
+
+- **Hostinger:** real credentials have not been supplied. SMTP/IMAP authentication, provider-specific Sent behavior, real reply arrival and recipient delivery require the controlled-mailbox checklist.
+- **Cloudflare:** account authorization, D1 creation, remote migrations, Worker deployment and public HTTPS tracking/unsubscribe behavior require the owner's account. Local D1 tests do not establish deployment readiness.
+- **Windows:** a Windows/Linux CI matrix and setup guide are included. Windows installation and browser execution have not run on this Linux machine.
+- **Publication:** saving the environment draft does not publish it or prove restoration in a fresh cloud task. Review/save and publish through environment settings, then validate a new task separately.
+- **Version scope:** single owner, one mailbox, one host with persistent SQLite. No outbound attachments, bulk campaign sending or automatic follow-up sending. MIME imports are bounded to 5 MB and known prospects.
+
+See verification.md for the owner-controlled live test and troubleshooting.md for actionable failure handling.
+
+## Saved cloud configuration
+
+The complete `install_script` (`npm ci`, noninteractive setup, production build) was executed successfully as one sequence after a fresh reinstall. `start_skill` records retained files, process restart, authentication/health checks, owner provisioning, test-only sending and the remaining live-verification steps.
+
+The draft save was confirmed. It includes these installation/startup instructions and preserves existing network presets while adding the exact custom destinations `binaries.prisma.sh`, `smtp.hostinger.com` and `imap.hostinger.com`. The deployed Worker hostname remains an owner-specific addition once known. No credential values were saved in the draft.
+
+Review and save the draft in environment settings, then publish the environment. Publication and validation in a fresh task have not been performed.

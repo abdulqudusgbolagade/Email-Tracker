@@ -1,0 +1,12 @@
+{
+  "name": "@grant/tracking",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node ../../scripts/cloudflare.mjs dev",
+    "deploy": "node ../../scripts/cloudflare.mjs deploy",
+    "test": "vitest run --config vitest.config.ts",
+    "typecheck": "tsc --noEmit"
+  }
+}

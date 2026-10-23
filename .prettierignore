@@ -1,0 +1,11 @@
+node_modules
+.next
+.npm-cache
+.cache
+src/generated
+data
+backups
+test-results
+playwright-report
+package-lock.json
+workers/tracking/.wrangler

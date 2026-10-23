@@ -1,0 +1,217 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+datasource db {
+  provider = "sqlite"
+}
+model Owner {
+  id           String @id @default(cuid())
+  email        String @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  sessions     Session[]
+}
+model Session {
+  id        String @id
+  ownerId   String
+  owner     Owner @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+}
+model AppSettings {
+  id                String @id @default("singleton")
+  timezone          String @default("Africa/Lagos")
+  signature         String @default("Grant Publishing Co.")
+  intervals         String @default("4,7,10")
+  keepReminders     Boolean @default(false)
+  outreachEnabled   Boolean @default(false)
+  testRecipients    String @default("")
+  hourlyLimit       Int @default(20)
+  dailyLimit        Int @default(100)
+  requestLimit      Int @default(120)
+  fromName          String @default("Grant Publishing Co.")
+  mailboxUser       String @default("support@grantpublishingco.com")
+  encryptedPassword String?
+  smtpHost          String @default("smtp.hostinger.com")
+  smtpPort          Int @default(465)
+  smtpSecurity      String @default("TLS")
+  imapHost          String @default("imap.hostinger.com")
+  imapPort          Int @default(993)
+  sentFolder        String?
+  lastSmtpTest      DateTime?
+  lastImapTest      DateTime?
+}
+model Campaign {
+  id              String @id @default(cuid())
+  name            String
+  service         String
+  active          Boolean @default(true)
+  trackingDefault Boolean @default(false)
+  createdAt       DateTime @default(now())
+  prospects       Prospect[]
+}
+model Prospect {
+  id                 String @id @default(cuid())
+  fullName           String
+  email              String @unique
+  website            String @default("")
+  bookTitle          String @default("")
+  bookGenre          String @default("")
+  country            String @default("")
+  publishingPlatform String @default("")
+  service            String @default("Book Publicity")
+  leadSource         String @default("")
+  campaignId         String?
+  campaign           Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  status             String @default("New")
+  notes              String @default("")
+  lastContacted      DateTime?
+  lastReply          DateTime?
+  followUpDate       DateTime?
+  wonAt              DateTime?
+  optoutHash         String? @unique
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  conversations      Conversation[]
+  drafts             Draft[]
+}
+model Conversation {
+  id          String @id @default(cuid())
+  prospectId  String
+  prospect    Prospect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  subject     String
+  createdAt   DateTime @default(now())
+  messages    Message[]
+  followups   FollowUp[]
+}
+model Draft {
+  id             String @id @default(cuid())
+  prospectId     String
+  prospect       Prospect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  conversationId String?
+  campaignId     String?
+  subject        String
+  html           String
+  text           String
+  tracking       Boolean @default(false)
+  revision       Int @default(1)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  attempts       SendAttempt[]
+}
+model Message {
+  id                  String @id @default(cuid())
+  conversationId      String
+  conversation        Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  direction           String
+  messageId           String
+  inReplyTo           String?
+  references          String @default("[]")
+  subject             String
+  from                String
+  to                  String
+  html                String
+  text                String
+  rawMime             Bytes?
+  state               String
+  delivery            String @default("Unconfirmed")
+  campaignId          String?
+  service             String
+  trackingHash        String? @unique
+  trackingExpiresAt   DateTime?
+  firstSignal         DateTime?
+  latestSignal        DateTime?
+  signalCount         Int @default(0)
+  qualifiedReply      Boolean @default(false)
+  followupScheduled   Boolean @default(false)
+  replyToMessageId    String?
+  sentCopySaved       Boolean @default(false)
+  sentCopyState       String @default("Pending")
+  automated           Boolean @default(false)
+  bounce              Boolean @default(false)
+  uid                 Int?
+  uidValidity         String?
+  folder              String?
+  mailbox             String?
+  receivedAt          DateTime @default(now())
+  createdAt           DateTime @default(now())
+  attempts            SendAttempt[]
+  events              TrackingEvent[]
+  @@unique([mailbox, folder, uidValidity, uid])
+  @@index([messageId])
+  @@index([campaignId, service, receivedAt])
+}
+model SendAttempt {
+  id             String @id @default(cuid())
+  idempotencyKey String @unique
+  draftId        String
+  draft          Draft @relation(fields: [draftId], references: [id])
+  revision       Int
+  messageId      String @unique
+  message        Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  state          String @default("Queued")
+  error          String?
+  startedAt      DateTime?
+  completedAt    DateTime?
+  createdAt      DateTime @default(now())
+  @@unique([draftId, revision])
+}
+model FollowUp {
+  id             String @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  step           Int @default(0)
+  dueAt          DateTime
+  state          String @default("Pending")
+  createdAt      DateTime @default(now())
+  @@index([state, dueAt])
+}
+model Suppression {
+  email     String @id
+  reason    String
+  createdAt DateTime @default(now())
+}
+model TrackingEvent {
+  id         String @id
+  messageId  String
+  message    Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  occurredAt DateTime
+  category   String
+  @@index([occurredAt])
+}
+model RemoteToken {
+  hash       String @id
+  kind       String
+  prospectId String?
+  messageId  String?
+  expiresAt  DateTime
+}
+model SyncCheckpoint {
+  id          String @id
+  uidValidity String?
+  lastUid     Int @default(0)
+  cursor      Int @default(0)
+  updatedAt   DateTime @updatedAt
+}
+model JobState {
+  id        String @id
+  owner     String?
+  leaseUntil DateTime?
+  requested Boolean @default(false)
+  heartbeat DateTime?
+  lastRun   DateTime?
+  error     String?
+}
+model AuditLog {
+  id         String @id @default(cuid())
+  action     String
+  entityId   String?
+  detail     String @default("")
+  createdAt  DateTime @default(now())
+  @@index([createdAt])
+}
+model RateLimit {
+  id       String @id
+  count    Int @default(1)
+  resetAt  DateTime
+}
