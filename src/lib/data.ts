@@ -171,6 +171,7 @@ export async function prospectHistory(id: string) {
           signalCount: true,
           firstSignal: true,
           latestSignal: true,
+          trackingHash: true,
           events: { orderBy: { occurredAt: "desc" }, take: 100 },
         },
       },

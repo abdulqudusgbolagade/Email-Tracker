@@ -69,6 +69,7 @@ With the Worker connected, outreach also receives a confirmed-POST unsubscribe l
 - [Implementation checklist](docs/implementation.md)
 - [Windows setup](docs/windows.md)
 - [Cloudflare Worker and D1](docs/cloudflare.md)
+- [ChatGPT drafts and open-signal tracking](docs/outreach-tracking.md)
 - [VPS deployment and database migration](docs/deployment.md)
 - [Owner-controlled acceptance test](docs/verification.md)
 - [Privacy, retention and recipient requests](docs/privacy.md)

@@ -231,7 +231,7 @@ export function Composer({
           </label>
           <p className="muted small">
             {data.trackingConfigured
-              ? "Signals may come from privacy proxies or automated systems. They do not confirm reading."
+              ? "Signals may come from privacy proxies or automated systems. They do not confirm reading. No signal does not mean unread."
               : "Cloudflare is not configured. Leave tracking off to send without it."}
           </p>
           {error && (

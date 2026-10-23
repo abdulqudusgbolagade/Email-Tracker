@@ -23,6 +23,29 @@ Use the Settings form for Hostinger credentials. Never put passwords in PowerShe
 
 The two-minute Inbox poll catches up after the computer wakes or the application restarts. Reminders do not require a process to remain running to be due: their timestamps persist in SQLite. Processing, sends and synchronization resume when the runner starts.
 
+## Update a copy downloaded as a ZIP
+
+Stop the application with Ctrl+C and run `npm.cmd run backup` in its existing
+folder. Download the latest ZIP from the repository's main branch and extract it
+to a separate temporary folder. Copy the new project contents into your existing
+project folder, merging folders and replacing source files. Preserve your
+existing `.env`, `data` and `backups`; the source archive does not contain these
+private files. Keep a copy of the matching encryption key with your private
+backup. Opening a completely separate new folder starts with a new database
+instead of your existing records.
+
+In PowerShell in the existing project folder, run these one at a time:
+
+```powershell
+npm.cmd ci
+npm.cmd run setup -- --non-interactive
+npm.cmd run dev
+```
+
+The setup command applies migrations and keeps your existing owner account. Use
+your existing sign-in details. Read [open-signal tracking](outreach-tracking.md)
+to connect Cloudflare and verify a controlled tracked message.
+
 ## Tests and backups
 
 ```powershell
@@ -35,6 +58,6 @@ npm run test:e2e
 npm run backup
 ```
 
-Browser tests use a temporary database and fixture account. They never send to real recipients. Linux and Windows CI jobs are defined, but Windows must actually run before Windows compatibility is considered verified.
+Browser tests use a temporary database and fixture account. They never send to real recipients. The initial GitHub Actions run passed the complete workflow on both Linux and Windows; see the linked evidence in [validation](validation.md). Subsequent changes run the same CI matrix on push.
 
 For restoration, stop both processes, preserve the current database, put the backup at the configured `DATABASE_URL` location, restore the matching encryption key securely, then run setup and restart. SQLite WAL/SHM files belong to the old running database; use the consistent backup rather than copying a live database file alone.

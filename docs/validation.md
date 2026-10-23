@@ -4,9 +4,9 @@ Validated on Linux with Node.js 24.19.0 and npm 11.9.0, on 23 October 2026. Thes
 
 | Check | Result |
 | --- | --- |
-| Application unit/integration suite | **47 passed**, including a real local SMTP sink, temporary SQLite databases, authenticated API requests and mocked IMAP reconnection |
+| Application unit/integration suite | **50 passed**, including a real local SMTP sink, temporary SQLite databases, authenticated API requests, mocked IMAP reconnection and accurate open-signal status rendering |
 | Cloudflare Worker/D1 suite | **7 passed** in the real local Workers runtime with D1 bindings |
-| Chromium end-to-end suite | **8 passed**: four workflows on desktop and mobile viewports |
+| Chromium end-to-end suite | **10 passed**: five workflows on desktop and mobile viewports |
 | Type checking | Application, Next.js route types, Worker and tests passed |
 | ESLint | Passed |
 | Production build | Passed |
@@ -28,6 +28,7 @@ Validated on Linux with Node.js 24.19.0 and npm 11.9.0, on 23 October 2026. Thes
 - Calendar-day reminders across timezones/DST, one pending reminder per conversation, accepted-send postprocessing recovery, human-reply cancellation and unsubscribe suppression.
 - Unpredictable-token validation, proxy/automation classifications, GIF response under logging failure, HMAC expiry/tamper/replay rejection, cursor pages, event deduplication, unsubscribe GET/POST separation, deletion and retention cleanup.
 - Desktop/mobile navigation, actual prospect creation/editing, personalized draft preview, confirmation gating, blocked unconfigured sending, settings persistence, campaign creation and CSV import.
+- Explicit distinction between Tracking off, No signal recorded and Open signal recorded; synchronized first/latest times in Africa/Lagos; no pixel loading from the status display. The additional browser scenario uses response fixtures only inside the test and checks desktop/mobile layout without adding fake messages to any live database.
 
 The mobile checks exposed long-dialog hit-target and horizontal-table problems during development; bounded mobile dialogs, explicit form labels and responsive record cards resolved them. The final full browser run passed.
 
@@ -41,7 +42,7 @@ The retained filesystem includes dependencies, generated Prisma client, producti
 
 - **Hostinger:** real credentials have not been supplied. SMTP/IMAP authentication, provider-specific Sent behavior, real reply arrival and recipient delivery require the controlled-mailbox checklist.
 - **Cloudflare:** account authorization, D1 creation, remote migrations, Worker deployment and public HTTPS tracking/unsubscribe behavior require the owner's account. Local D1 tests do not establish deployment readiness.
-- **Windows:** a Windows/Linux CI matrix and setup guide are included. Windows installation and browser execution have not run on this Linux machine.
+- **Windows:** the initial-release CI subsequently passed on actual Windows and Linux runners; see the evidence below. This cloud machine remains Linux.
 - **Publication:** saving the environment draft does not publish it or prove restoration in a fresh cloud task. Review/save and publish through environment settings, then validate a new task separately.
 - **Version scope:** single owner, one mailbox, one host with persistent SQLite. No outbound attachments, bulk campaign sending or automatic follow-up sending. MIME imports are bounded to 5 MB and known prospects.
 
@@ -54,3 +55,27 @@ The complete `install_script` (`npm ci`, noninteractive setup, production build)
 The draft save was confirmed. It includes these installation/startup instructions and preserves existing network presets while adding the exact custom destinations `binaries.prisma.sh`, `smtp.hostinger.com` and `imap.hostinger.com`. The deployed Worker hostname remains an owner-specific addition once known. No credential values were saved in the draft.
 
 Review and save the draft in environment settings, then publish the environment. Publication and validation in a fresh task have not been performed.
+
+## Subsequent CI and owner-reported evidence
+
+[GitHub Actions run 39993097603](https://github.com/abdulqudusgbolagade/Email-Tracker/actions/runs/39993097603)
+completed successfully for commit `9fff314e00b96a441966d3a6c1cc5daa6db86e1d`.
+Both `check (ubuntu-latest)` and `check (windows-latest)` passed installation,
+noninteractive setup, type checking, lint, application/Worker tests, production
+build and browser acceptance tests. These results establish Windows CI execution
+for that source version, rather than implying this Linux workspace is Windows.
+
+The owner has also provided screenshots of successful account provisioning and
+the application running on their Windows PC. They report successful mailbox
+connection checks and receipt of a controlled test message. Gmail's received
+message summary shows SPF PASS, DKIM PASS with the sender's domain, and DMARC
+PASS. These are owner-provided live-provider observations, separate from the
+automated local SMTP/IMAP tests. The message landed in Gmail spam, including a
+comparison sent through Hostinger webmail. Inbox placement and the precise reason
+for Gmail filtering remain unresolved; provider investigation is pending.
+
+Public Cloudflare activation remains unrun: the owner needs to create an account,
+authorize Wrangler, deploy D1/the Worker and verify a new tracked message. No
+Cloudflare credentials were requested in chat or placed in GitHub. There is no
+direct ChatGPT sending integration; ChatGPT drafts are copied into the composer
+and explicitly sent through the app.

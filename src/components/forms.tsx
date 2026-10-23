@@ -5,6 +5,7 @@ import type { Snapshot, History } from "@/lib/data";
 import { SERVICES, STATUSES } from "@/lib/validation";
 import type { Api } from "./composer";
 import { Badge, Empty, Field, MessagePreview, Modal } from "./ui";
+import { OpenSignalStatus } from "./open-signal-status";
 type Prospect = Snapshot["prospects"][number];
 type Campaign = Snapshot["campaigns"][number];
 export function ProspectForm({
@@ -413,11 +414,13 @@ export function CsvImport({
 }
 export function HistoryDialog({
   history,
+  timeZone,
   onClose,
   api,
   onDone,
 }: {
   history: History;
+  timeZone: string;
   onClose: () => void;
   api: Api;
   onDone: () => Promise<void>;
@@ -480,16 +483,7 @@ export function HistoryDialog({
                   <pre className="plain-preview">{message.text}</pre>
                 )}
                 {message.direction === "Outbound" && (
-                  <p className="muted small">
-                    {message.signalCount} recorded open signals · First:{" "}
-                    {message.firstSignal
-                      ? new Date(message.firstSignal).toLocaleString()
-                      : "—"}{" "}
-                    · Latest:{" "}
-                    {message.latestSignal
-                      ? new Date(message.latestSignal).toLocaleString()
-                      : "—"}
-                  </p>
+                  <OpenSignalStatus message={message} timeZone={timeZone} />
                 )}
                 {message.automated && (
                   <Badge>Automated response or notice</Badge>

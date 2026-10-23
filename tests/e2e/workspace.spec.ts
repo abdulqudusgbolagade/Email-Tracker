@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import type { Snapshot } from "../../src/lib/data";
 test.beforeEach(async ({ page }) => {
   await page.goto("/login");
   await page
@@ -46,6 +47,82 @@ test("uses real empty metrics, protects exports and supports every navigation it
       () => document.documentElement.scrollWidth <= window.innerWidth,
     ),
   ).toBe(true);
+});
+test("distinguishes missing signals from tracking off and shows event times without horizontal overflow", async ({
+  page,
+}, testInfo) => {
+  // Only this browser test's response is replaced. No fixture messages enter
+  // the application database, and no SMTP or public pixel request is made.
+  const fixtures: Snapshot["messages"] = [0, 1, 2].map((index) => ({
+    id: `signal-fixture-${index}`,
+    conversationId: `conversation-fixture-${index}`,
+    direction: "Outbound",
+    messageId: `<signal-fixture-${index}@example.test>`,
+    subject: [
+      "Tracking disabled",
+      "Waiting for a signal",
+      "Proxy image requests",
+    ][index],
+    from: "owner@example.test",
+    to: `recipient-${index}@example.test`,
+    state: "SMTP Accepted",
+    delivery: "Unconfirmed",
+    receivedAt: "2026-10-23T07:00:00.000Z",
+    signalCount: index === 2 ? 2 : 0,
+    firstSignal: index === 2 ? "2026-10-23T08:00:00.000Z" : null,
+    latestSignal: index === 2 ? "2026-10-23T08:05:00.000Z" : null,
+    qualifiedReply: false,
+    bounce: false,
+    automated: false,
+    sentCopySaved: true,
+    sentCopyState: "Saved",
+    campaignId: null,
+    service: "Book Publicity",
+    trackingHash: index === 0 ? null : "a".repeat(64),
+    conversation: {
+      prospect: {
+        id: `prospect-fixture-${index}`,
+        fullName: `Controlled signal fixture ${index}`,
+        email: `recipient-${index}@example.test`,
+      },
+    },
+    attempts: [],
+  }));
+  await page.route("**/api/data?*", async (route) => {
+    const response = await route.fetch();
+    const data = (await response.json()) as Snapshot;
+    data.messages = fixtures;
+    await route.fulfill({ response, json: data });
+  });
+  await page.goto("/sent-emails");
+  await expect(page.getByText("Tracking off", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("No signal recorded", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Open signal recorded", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Reading status unknown. Images may be blocked."),
+  ).toBeVisible();
+  await expect(
+    page.getByText("2 recorded events", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.locator('time[datetime="2026-10-23T08:00:00.000Z"]'),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Image requests; reading unconfirmed."),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
+  await page.screenshot({
+    path: testInfo.outputPath("open-signals.png"),
+    fullPage: true,
+  });
 });
 test("creates and edits a prospect, personalizes a saved draft and blocks an unconfigured send", async ({
   page,

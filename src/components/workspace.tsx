@@ -32,6 +32,7 @@ import { SERVICES } from "@/lib/validation";
 import { Composer, type Api } from "./composer";
 import { Settings } from "./settings";
 import { Badge, Empty } from "./ui";
+import { OpenSignalStatus } from "./open-signal-status";
 import { CampaignForm, CsvImport, HistoryDialog, ProspectForm } from "./forms";
 
 const navigation = [
@@ -574,6 +575,7 @@ export function Workspace({
                     <MessageTable
                       messages={data.messages.slice(0, 5)}
                       formatDate={formatDate}
+                      timeZone={data.settings.timezone}
                       history={showHistory}
                       reconcile={(id) =>
                         run(async () => {
@@ -601,6 +603,7 @@ export function Workspace({
                   <MessageTable
                     messages={data.messages}
                     formatDate={formatDate}
+                    timeZone={data.settings.timezone}
                     history={showHistory}
                     reconcile={(id) =>
                       run(async () => {
@@ -612,6 +615,18 @@ export function Workspace({
                       })
                     }
                   />
+                  {view === "sent-emails" && (
+                    <div className="card-body">
+                      <p className="muted small">
+                        An open signal is an image request, not proof of
+                        reading. No signal does not prove an email went unread.
+                        Privacy proxies and automated systems can also request
+                        images. Tracking applies to messages sent through this
+                        app with tracking enabled; it cannot be added to earlier
+                        emails.
+                      </p>
+                    </div>
+                  )}
                 </section>
               )}
               {view === "compose" && (
@@ -1121,6 +1136,7 @@ export function Workspace({
               {history && (
                 <HistoryDialog
                   history={history}
+                  timeZone={data.settings.timezone}
                   api={api}
                   onDone={reload}
                   onClose={() => setHistory(null)}
@@ -1136,11 +1152,13 @@ export function Workspace({
 function MessageTable({
   messages,
   formatDate,
+  timeZone,
   history,
   reconcile,
 }: {
   messages: Snapshot["messages"];
   formatDate: (value: string | null) => string;
+  timeZone: string;
   history: (id: string) => void;
   reconcile: (id: string) => void;
 }) {
@@ -1212,12 +1230,7 @@ function MessageTable({
               </td>
               <td>
                 {m.direction === "Outbound" ? (
-                  <>
-                    <strong>{m.signalCount}</strong>
-                    <small>
-                      {m.trackingHash ? "Recorded signals" : "Tracking off"}
-                    </small>
-                  </>
+                  <OpenSignalStatus message={m} timeZone={timeZone} />
                 ) : (
                   "—"
                 )}

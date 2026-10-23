@@ -421,8 +421,17 @@ export function Settings({
             </p>
             <p className="muted small">
               Pixels indicate image requests. Privacy proxies and automation can
-              produce signals without a person reading.
+              produce signals without a person reading. No signal does not mean
+              unread; the recipient may block images.
             </p>
+            <a
+              className="button full"
+              href="https://github.com/abdulqudusgbolagade/Email-Tracker/blob/main/docs/outreach-tracking.md"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open tracking setup guide
+            </a>
           </div>
         </section>
         <section className="card">
