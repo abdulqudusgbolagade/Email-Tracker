@@ -61,6 +61,13 @@ Review and save the draft in environment settings, then publish the environment.
 
 ## Subsequent CI and owner-reported evidence
 
+[GitHub Actions run 40013878998](https://github.com/abdulqudusgbolagade/Email-Tracker/actions/runs/40013878998)
+completed successfully for MCP connector commit
+`0279c8178beeb6217b243962ae7951c058ec0dc0`. Both Windows and Linux runners passed
+locked installation, database setup, type checking, lint, all 64 application and
+7 Worker tests, production build and all 10 browser checks. This includes the
+HTTP and stdio connector tests; it does not establish a live Codex connection.
+
 [GitHub Actions run 39993097603](https://github.com/abdulqudusgbolagade/Email-Tracker/actions/runs/39993097603)
 completed successfully for commit `9fff314e00b96a441966d3a6c1cc5daa6db86e1d`.
 Both `check (ubuntu-latest)` and `check (windows-latest)` passed installation,
