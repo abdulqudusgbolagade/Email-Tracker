@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-export function LoginForm() {
+export function LoginForm({ returnTo = "/overview" }: { returnTo?: string }) {
   const router = useRouter();
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -23,7 +23,7 @@ export function LoginForm() {
           });
           const data = await result.json();
           if (!result.ok) throw new Error(data.error);
-          router.replace("/overview");
+          router.replace(returnTo);
           router.refresh();
         } catch (e) {
           setError(e instanceof Error ? e.message : "Sign-in failed.");

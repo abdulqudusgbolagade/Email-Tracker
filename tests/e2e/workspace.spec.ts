@@ -41,6 +41,21 @@ test("uses real empty metrics, protects exports and supports every navigation it
     "http://localhost:3100/api/exports/prospects",
   );
   expect(response.status()).toBe(401);
+  const disabledMcp = await anonymous.request.post(
+    "http://localhost:3100/api/mcp",
+    {
+      data: { jsonrpc: "2.0", id: 1, method: "tools/list" },
+    },
+  );
+  expect(disabledMcp.status()).toBe(503);
+  const review = await anonymous.newPage();
+  await review.goto(
+    "http://localhost:3100/compose?draft=mcp-owner-review-test",
+  );
+  await expect(review).toHaveURL(/\/login\?next=/);
+  expect(new URL(review.url()).searchParams.get("next")).toBe(
+    "/compose?draft=mcp-owner-review-test",
+  );
   await anonymous.close();
   expect(
     await page.evaluate(

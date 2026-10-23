@@ -436,6 +436,40 @@ export function Settings({
         </section>
         <section className="card">
           <div className="card-body">
+            <span className="eyebrow">CODEX CONNECTION</span>
+            <h3>Grant Mail Tracker MCP</h3>
+            <Badge tone={data.mcp.enabled ? "blue" : ""}>
+              {data.mcp.enabled
+                ? "Key configured · verify connection"
+                : "Disabled"}
+            </Badge>
+            <p className="muted small">
+              Codex can prepare outreach and check open signals and replies. You
+              review and confirm each send in this app. Your mailbox password
+              stays here.
+            </p>
+            {data.mcp.enabled && (
+              <p className="small break-all">
+                Endpoint: <code>{data.mcp.endpoint}</code>
+                {!data.mcp.publicHttps && (
+                  <>
+                    <br />A public HTTPS address is required for cloud clients.
+                  </>
+                )}
+              </p>
+            )}
+            <a
+              className="button full"
+              href="https://github.com/abdulqudusgbolagade/Email-Tracker/blob/main/docs/mcp.md"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open Codex connection guide
+            </a>
+          </div>
+        </section>
+        <section className="card">
+          <div className="card-body">
             <CheckCircle2 size={20} />
             <h3>Keep a recoverable copy</h3>
             <p className="muted small">

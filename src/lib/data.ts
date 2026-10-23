@@ -3,6 +3,7 @@ import { analytics } from "./analytics";
 import { appSettings } from "./mailbox";
 import { trackingConfigured } from "./tracking";
 import { AppError } from "./security";
+import { mcpConfiguration } from "./mcp-auth";
 
 export async function snapshot(params = new URLSearchParams()) {
   const settings = await appSettings();
@@ -126,6 +127,7 @@ export async function snapshot(params = new URLSearchParams()) {
     ),
     environmentMailbox: Boolean(process.env.MAILBOX_PASSWORD),
     trackingConfigured: trackingConfigured(),
+    mcp: mcpConfiguration(),
     prospects,
     prospectCount,
     page,

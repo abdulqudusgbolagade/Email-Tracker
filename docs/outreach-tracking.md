@@ -5,9 +5,13 @@ Grant Mail Tracker, select the prospect, preview it and explicitly confirm the
 send. The application sends through your authorized Hostinger mailbox and keeps
 the message, sending outcome, replies and tracking signals together.
 
-This version has no direct ChatGPT sending integration. Sending through an
-unrelated mail tool, Hostinger webmail or Gmail does not add the application's
-tracking token. Tracking cannot be added retroactively to an email already sent.
+The optional [Codex MCP connection](mcp.md) can prepare drafts and return an owner
+review link, avoiding manual copying. The owner still confirms each send in the
+application. Connecting that service requires a compatible authenticated MCP
+client and a reachable application endpoint; it is not enabled automatically.
+Sending through an unrelated mail tool, Hostinger webmail or Gmail does not add
+the application's tracking token. Tracking cannot be added retroactively to an
+email already sent.
 
 ## Understand the message statuses
 

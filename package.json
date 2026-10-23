@@ -17,6 +17,8 @@
     "start:web": "next start --hostname 127.0.0.1",
     "jobs": "tsx --env-file=.env scripts/runner.ts",
     "setup": "tsx scripts/setup.ts",
+    "mcp:setup": "tsx scripts/mcp-setup.ts",
+    "mcp:stdio": "tsx scripts/mcp.ts",
     "db:generate": "node scripts/prisma.mjs generate",
     "db:migrate": "node scripts/prisma.mjs migrate deploy",
     "backup": "tsx --env-file=.env scripts/backup.ts",
@@ -31,6 +33,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
     "@node-rs/argon2": "2.2.2",
     "@prisma/adapter-better-sqlite3": "7.10.1",
     "@prisma/client": "7.10.1",

@@ -14,6 +14,9 @@ for (const key of [
   "MAILBOX_PASSWORD",
   "TRACKING_BASE_URL",
   "TRACKING_SYNC_SECRET",
+  "MCP_ENABLED",
+  "MCP_ACCESS_TOKEN_HASH",
+  "MCP_ALLOWED_ORIGINS",
 ])
   delete process.env[key];
 const sql = new Database(file);

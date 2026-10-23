@@ -47,11 +47,19 @@ With the Worker connected, outreach also receives a confirmed-POST unsubscribe l
 
 ## Useful commands
 
+The optional [Codex MCP connector](docs/mcp.md) lets Codex prepare a personalized
+draft, return an owner confirmation link and check replies/open signals. Each
+send is confirmed in the app; no draft copying is required. It is disabled by
+default. Local clients can use stdio on the PC; remote HTTP clients need a
+dedicated bearer key and a reachable HTTPS application endpoint. The tracking
+Worker alone is not the MCP server.
+
 | Command                              | Purpose                                                                         |
 | ------------------------------------ | ------------------------------------------------------------------------------- |
 | `npm run setup -- --non-interactive` | Initialize secrets/database without creating an owner                           |
 | `npm run db:migrate`                 | Apply committed migrations to an existing initialized database                  |
 | `npm run jobs`                       | Run background work separately                                                  |
+| `npm run mcp:setup`                  | Provision a dedicated MCP key locally; restart the app to enable it             |
 | `npm run typecheck`                  | Check application and Worker types                                              |
 | `npm run lint`                       | Check application, scripts and tests                                            |
 | `npm test`                           | Application integrations and Worker/D1 tests                                    |
@@ -70,10 +78,11 @@ With the Worker connected, outreach also receives a confirmed-POST unsubscribe l
 - [Windows setup](docs/windows.md)
 - [Cloudflare Worker and D1](docs/cloudflare.md)
 - [ChatGPT drafts and open-signal tracking](docs/outreach-tracking.md)
+- [Codex MCP connection, approval and revocation](docs/mcp.md)
 - [VPS deployment and database migration](docs/deployment.md)
 - [Owner-controlled acceptance test](docs/verification.md)
 - [Privacy, retention and recipient requests](docs/privacy.md)
 - [Troubleshooting](docs/troubleshooting.md)
 - [Executed validation and remaining limitations](docs/validation.md)
 
-This version is single-owner, single-mailbox and single-host. It does not support bulk sends, automatic follow-up sending, outbound attachments or multi-user access. The inbox imports known prospects and downloads bounded MIME messages up to 5 MB; attachments are not stored or offered for download. Unmatched mail remains in the original mailbox. Existing Linux test results do not establish live Hostinger access, public deployment or Windows execution.
+This version is single-owner, single-mailbox and single-host. It does not support bulk sends, automatic follow-up sending, outbound attachments or multi-user access. The inbox imports known prospects and downloads bounded MIME messages up to 5 MB; attachments are not stored or offered for download. Unmatched mail remains in the original mailbox. See the validation report to distinguish local automated results, Windows/Linux CI, owner-reported mailbox observations and pending public deployment/client acceptance tests.

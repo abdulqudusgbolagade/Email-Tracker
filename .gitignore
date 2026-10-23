@@ -1,6 +1,8 @@
 node_modules/
 .next/
 .env
+.env.mcp-tmp
+.mcp-access-token
 .env.local
 .env.*.local
 !.env.example

@@ -4,12 +4,13 @@ Validated on Linux with Node.js 24.19.0 and npm 11.9.0, on 23 October 2026. Thes
 
 | Check | Result |
 | --- | --- |
-| Application unit/integration suite | **50 passed**, including a real local SMTP sink, temporary SQLite databases, authenticated API requests, mocked IMAP reconnection and accurate open-signal status rendering |
+| Application unit/integration suite | **64 passed**, including a real local SMTP sink, temporary SQLite databases, authenticated API requests, mocked IMAP reconnection, accurate open-signal status rendering and both MCP transports |
 | Cloudflare Worker/D1 suite | **7 passed** in the real local Workers runtime with D1 bindings |
 | Chromium end-to-end suite | **10 passed**: five workflows on desktop and mobile viewports |
 | Type checking | Application, Next.js route types, Worker and tests passed |
 | ESLint | Passed |
 | Production build | Passed |
+| MCP protocol and access boundary | Official SDK HTTP client and a real local stdio child process passed; disabled endpoint, key authorization, Host/Origin checks, bounded requests, request limits, idempotent preparation and owner-only send confirmation tested |
 | Locked installation | `npm ci` passed; official engine checksum verification retained |
 | Database initialization | Two committed migrations applied; repeat setup reports no pending migrations |
 | Consistent backup/restore | Automated test restored a database containing records and passed SQLite integrity checking |
@@ -29,6 +30,8 @@ Validated on Linux with Node.js 24.19.0 and npm 11.9.0, on 23 October 2026. Thes
 - Unpredictable-token validation, proxy/automation classifications, GIF response under logging failure, HMAC expiry/tamper/replay rejection, cursor pages, event deduplication, unsubscribe GET/POST separation, deletion and retention cleanup.
 - Desktop/mobile navigation, actual prospect creation/editing, personalized draft preview, confirmation gating, blocked unconfigured sending, settings persistence, campaign creation and CSV import.
 - Explicit distinction between Tracking off, No signal recorded and Open signal recorded; synchronized first/latest times in Africa/Lagos; no pixel loading from the status display. The additional browser scenario uses response fixtures only inside the test and checks desktop/mobile layout without adding fake messages to any live database.
+- MCP credential provisioning/rotation/revocation in temporary files without printing raw keys; preservation of mailbox/encryption settings; official SDK initialize/list/call over stateless HTTP and a real local stdio process; normal browser sessions cannot authorize MCP and the MCP key cannot authorize the browser send API.
+- MCP draft retries/concurrency, unchanged request IDs, owner edits, normalization/duplicate/suppression rules, sanitized previews without pixels, browser-confirmed tracked MIME with mocked SMTP/Worker and unconfirmed open-signal reporting. Actual HTTP browser checks verify the MCP route is disabled by default and preserve an internal draft-review link through the login redirect; external redirect targets are rejected in unit tests.
 
 The mobile checks exposed long-dialog hit-target and horizontal-table problems during development; bounded mobile dialogs, explicit form labels and responsive record cards resolved them. The final full browser run passed.
 
@@ -74,8 +77,13 @@ automated local SMTP/IMAP tests. The message landed in Gmail spam, including a
 comparison sent through Hostinger webmail. Inbox placement and the precise reason
 for Gmail filtering remain unresolved; provider investigation is pending.
 
-Public Cloudflare activation remains unrun: the owner needs to create an account,
-authorize Wrangler, deploy D1/the Worker and verify a new tracked message. No
-Cloudflare credentials were requested in chat or placed in GitHub. There is no
-direct ChatGPT sending integration; ChatGPT drafts are copied into the composer
-and explicitly sent through the app.
+Public Cloudflare activation remains unrun: the owner reports creating an account,
+but Wrangler authorization, D1/Worker deployment and a new tracked-message check
+remain pending. No Cloudflare credentials were requested in chat or placed in
+GitHub. The optional MCP connector can now prepare drafts, provide an owner review
+link and read outcomes/signals. A compatible local client can launch its stdio
+process; remote HTTP clients require public application hosting and bearer
+authentication. Neither mode has been connected to the owner's actual Codex
+account. Each send is confirmed in the app; autonomous SMTP submission and OAuth
+client authorization are not implemented through MCP. The HTTP/stdio acceptance
+tests used the official MCP SDK client and fixtures, not a live Codex session.

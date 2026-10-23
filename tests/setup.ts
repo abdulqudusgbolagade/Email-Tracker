@@ -15,6 +15,9 @@ for (const key of [
   "SMTP_SECURITY",
   "TRACKING_BASE_URL",
   "TRACKING_SYNC_SECRET",
+  "MCP_ENABLED",
+  "MCP_ACCESS_TOKEN_HASH",
+  "MCP_ALLOWED_ORIGINS",
 ])
   delete process.env[key];
 beforeAll(() => {
@@ -32,6 +35,9 @@ afterEach(() => {
   vi.unstubAllGlobals();
   delete process.env.TRACKING_BASE_URL;
   delete process.env.TRACKING_SYNC_SECRET;
+  delete process.env.MCP_ENABLED;
+  delete process.env.MCP_ACCESS_TOKEN_HASH;
+  delete process.env.MCP_ALLOWED_ORIGINS;
   const sql = new Database(file);
   sql.pragma("foreign_keys = OFF");
   const tables = sql

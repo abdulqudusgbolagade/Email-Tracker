@@ -2,7 +2,7 @@
 
 Grant Mail Tracker is a single-owner Next.js Node application plus a restartable Node job runner, sharing a persistent SQLite database through Prisma. The public Cloudflare Worker stores token hashes and minimal events in D1; it never receives mailbox credentials, message bodies or prospect email addresses.
 
-The server is the security boundary. Every private route verifies an opaque, expiring, database-backed session. Mutations verify Origin and a session-bound CSRF token. The owner is provisioned locally using a hidden terminal password prompt; there is no default password or public signup. Credential encryption uses an independently generated AES-256-GCM key in the ignored .env file.
+The server is the security boundary. Private browser routes verify an opaque, expiring, database-backed session. Browser mutations verify Origin and a session-bound CSRF token. The optional MCP interface uses separate bearer authentication as described below. The owner is provisioned locally using a hidden terminal password prompt; there is no default password or public signup. Credential encryption uses an independently generated AES-256-GCM key in the ignored .env file.
 
 An explicit confirmation creates an immutable message and a unique send operation in one database transaction. Only queued operations are eligible for SMTP. A process failure after submission is ambiguous and must not trigger automatic retransmission. SMTP acceptance is not delivery. IMAP Sent reconciliation uses Message-ID and never resends SMTP because a copy failed.
 
@@ -24,3 +24,19 @@ No bulk sending, automatic follow-ups, attachments or multi-user access in v1. M
 6. Product: all navigation, database analytics, operational documentation and end-to-end validation.
 
 Tests exercise temporary databases and owner-controlled addresses only. Automated tests do not establish Hostinger connectivity or a deployed Worker. Record each kind of validation separately in docs/validation.md.
+
+## Optional Codex MCP integration
+
+The local stdio transport runs under the OS account that can read the app/database
+and opens no public listening port. `/api/mcp` uses the official SDK's stateless Streamable HTTP transport with JSON
+responses. A separate revocable 256-bit bearer key is hashed in environment
+configuration; mailbox credentials and owner cookies cannot authenticate this
+interface. Host/Origin checks, bounded bodies, no batch requests and persistent
+request limits apply. No OAuth service or automatic public deployment is implied.
+
+Six bounded tools expose setup metadata, prospect search/creation, idempotent
+draft preparation, send-operation status and message activity. Prepared drafts
+and their request hashes commit atomically using deterministic request/draft IDs.
+The connector exposes no SMTP-send or browser-session tool. An authenticated owner
+confirmation in the app invokes the existing queue and its unchanged suppression, limits,
+tracking registration and retry protections. MCP can then read the result.

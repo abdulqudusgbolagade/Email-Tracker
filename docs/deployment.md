@@ -53,6 +53,16 @@ Configure DNS and certificate issuance for your real domain. The application doe
 
 Create a consistent backup on Windows, stop the old application, copy the backup and matching encryption key securely, and use an absolute Linux database path. Run migrations, start services, test the controlled workflow, then retire the Windows instance. Never operate two independent copies of the same outreach database/mailbox concurrently.
 
+## Optional MCP endpoint
+
+The same Node web process serves `/api/mcp` when explicitly enabled. Configure
+`APP_URL` with the real HTTPS origin, provision its dedicated key locally and
+follow [the MCP guide](mcp.md). Preserve Host and Origin through the reverse proxy;
+never log Authorization/Cookie headers, key files or request bodies. The
+Cloudflare pixel Worker is a separate service and cannot host the Node app's MCP
+tools. Both the web process and runner must remain active for approved sends.
+No changes to the Hostinger mailbox are needed to add the connector.
+
 ## PostgreSQL migration path
 
 Before horizontal scaling, change the Prisma datasource/adapter to PostgreSQL in a separate migration project. Create PostgreSQL migrations rather than applying SQLite SQL. Export/import records while preserving IDs, Message-IDs, send idempotency keys, token mappings, suppression and synchronization cursors. Recreate the partial unique pending-reminder index and replace SQLite-specific rate-limit SQL. Revalidate transactional claims, lease expiry, checkpoint commits and backups. Only then add multiple web instances and distributed job coordination. Never replay historical send operations during migration.

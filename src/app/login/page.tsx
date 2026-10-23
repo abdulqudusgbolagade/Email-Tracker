@@ -1,8 +1,14 @@
 import { db } from "@/lib/db";
 import { LoginForm } from "@/components/login";
+import { reviewReturn } from "@/lib/review-link";
 export const dynamic = "force-dynamic";
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const configured = (await db.owner.count()) > 0;
+  const returnTo = reviewReturn((await searchParams).next);
   return (
     <main className="login-page">
       <section className="login-brand">
@@ -29,7 +35,7 @@ export default async function LoginPage() {
           <h2>Your next chapter starts here.</h2>
           <p className="muted">Sign in to your outreach workspace.</p>
           {configured ? (
-            <LoginForm />
+            <LoginForm returnTo={returnTo} />
           ) : (
             <div className="callout">
               <strong>Provision the owner account first</strong>
