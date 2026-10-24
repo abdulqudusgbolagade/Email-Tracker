@@ -18,6 +18,8 @@ for (const key of [
   "MCP_ENABLED",
   "MCP_ACCESS_TOKEN_HASH",
   "MCP_ALLOWED_ORIGINS",
+  "MCP_OAUTH_ENABLED",
+  "MCP_OAUTH_REDIRECT_ORIGINS",
 ])
   delete process.env[key];
 beforeAll(() => {
@@ -38,6 +40,8 @@ afterEach(() => {
   delete process.env.MCP_ENABLED;
   delete process.env.MCP_ACCESS_TOKEN_HASH;
   delete process.env.MCP_ALLOWED_ORIGINS;
+  delete process.env.MCP_OAUTH_ENABLED;
+  delete process.env.MCP_OAUTH_REDIRECT_ORIGINS;
   const sql = new Database(file);
   sql.pragma("foreign_keys = OFF");
   const tables = sql

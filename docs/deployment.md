@@ -56,12 +56,21 @@ Create a consistent backup on Windows, stop the old application, copy the backup
 ## Optional MCP endpoint
 
 The same Node web process serves `/api/mcp` when explicitly enabled. Configure
-`APP_URL` with the real HTTPS origin, provision its dedicated key locally and
+`APP_URL` with the real HTTPS origin, enable OAuth (or a dedicated bearer key) locally and
 follow [the MCP guide](mcp.md). Preserve Host and Origin through the reverse proxy;
 never log Authorization/Cookie headers, key files or request bodies. The
 Cloudflare pixel Worker is a separate service and cannot host the Node app's MCP
 tools. Both the web process and runner must remain active for approved sends.
 No changes to the Hostinger mailbox are needed to add the connector.
+
+Expose discovery at `/.well-known/oauth-authorization-server` and
+`/.well-known/oauth-protected-resource/api/mcp`, the `/api/mcp/oauth/*` endpoints,
+and the `/mcp/authorize` consent page through the same HTTPS origin. These
+endpoints enforce their own authorization; an external interactive login wall
+in front of them prevents OAuth discovery. Keep the dashboard's application
+authentication active. Do not log callback queries, token bodies or secret
+headers. Preserve the original Host; spoofable forwarding headers are not used
+to authorize requests. OAuth does not run on the pixel Worker.
 
 ## PostgreSQL migration path
 

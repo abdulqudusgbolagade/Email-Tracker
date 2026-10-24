@@ -440,7 +440,9 @@ export function Settings({
             <h3>Grant Mail Tracker MCP</h3>
             <Badge tone={data.mcp.enabled ? "blue" : ""}>
               {data.mcp.enabled
-                ? "Key configured · verify connection"
+                ? data.mcp.oauthEnabled
+                  ? "OAuth enabled · verify connection"
+                  : "Key configured · verify connection"
                 : "Disabled"}
             </Badge>
             <p className="muted small">
@@ -458,6 +460,39 @@ export function Settings({
                 )}
               </p>
             )}
+            {data.mcpConnections.map((connection) => (
+              <div className="connection-check" key={connection.id}>
+                <div>
+                  <strong>{connection.name}</strong>
+                  <small>
+                    Expires{" "}
+                    {new Date(connection.expiresAt).toLocaleDateString("en", {
+                      timeZone: settings.timezone,
+                    })}
+                  </small>
+                </div>
+                <button
+                  className="button small-button"
+                  disabled={busy}
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        `Revoke ${connection.name}'s access to Grant Mail Tracker?`,
+                      )
+                    )
+                      void run(async () => {
+                        await api(
+                          `/mcp/connections/${connection.id}`,
+                          "DELETE",
+                        );
+                        report("Codex connection revoked.");
+                      });
+                  }}
+                >
+                  Revoke access
+                </button>
+              </div>
+            ))}
             <a
               className="button full"
               href="https://github.com/abdulqudusgbolagade/Email-Tracker/blob/main/docs/mcp.md"

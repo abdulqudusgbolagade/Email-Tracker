@@ -2,6 +2,7 @@ import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/
 import { authorizeMcp } from "@/lib/mcp-auth";
 import { createMcpServer } from "@/lib/mcp-server";
 import { AppError, safeError } from "@/lib/security";
+import { oauthChallenge } from "@/lib/mcp-oauth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -80,9 +81,7 @@ async function handler(request: Request) {
         status,
         headers: {
           "cache-control": "no-store",
-          ...(status === 401
-            ? { "www-authenticate": 'Bearer realm="Grant Mail Tracker MCP"' }
-            : {}),
+          ...(status === 401 ? { "www-authenticate": oauthChallenge() } : {}),
         },
       },
     );

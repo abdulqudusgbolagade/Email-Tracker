@@ -17,8 +17,13 @@ for (const key of [
   "MCP_ENABLED",
   "MCP_ACCESS_TOKEN_HASH",
   "MCP_ALLOWED_ORIGINS",
+  "MCP_OAUTH_ENABLED",
+  "MCP_OAUTH_REDIRECT_ORIGINS",
 ])
   delete process.env[key];
+// Explicitly enabled only in this isolated fixture database to exercise OAuth UI.
+process.env.MCP_ENABLED = "true";
+process.env.MCP_OAUTH_ENABLED = "true";
 const sql = new Database(file);
 for (const migration of readdirSync("prisma/migrations")
   .filter((x) => x !== "migration_lock.toml")

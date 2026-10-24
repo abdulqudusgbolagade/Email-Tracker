@@ -2,7 +2,7 @@
 
 Grant Mail Tracker is a single-owner Next.js Node application plus a restartable Node job runner, sharing a persistent SQLite database through Prisma. The public Cloudflare Worker stores token hashes and minimal events in D1; it never receives mailbox credentials, message bodies or prospect email addresses.
 
-The server is the security boundary. Private browser routes verify an opaque, expiring, database-backed session. Browser mutations verify Origin and a session-bound CSRF token. The optional MCP interface uses separate bearer authentication as described below. The owner is provisioned locally using a hidden terminal password prompt; there is no default password or public signup. Credential encryption uses an independently generated AES-256-GCM key in the ignored .env file.
+The server is the security boundary. Private browser routes verify an opaque, expiring, database-backed session. Browser mutations verify Origin and a session-bound CSRF token. The optional MCP interface uses OAuth or separate bearer authentication as described below. The owner is provisioned locally using a hidden terminal password prompt; there is no default password or public signup. Credential encryption uses an independently generated AES-256-GCM key in the ignored .env file.
 
 An explicit confirmation creates an immutable message and a unique send operation in one database transaction. Only queued operations are eligible for SMTP. A process failure after submission is ambiguous and must not trigger automatic retransmission. SMTP acceptance is not delivery. IMAP Sent reconciliation uses Message-ID and never resends SMTP because a copy failed.
 
@@ -32,7 +32,11 @@ and opens no public listening port. `/api/mcp` uses the official SDK's stateless
 responses. A separate revocable 256-bit bearer key is hashed in environment
 configuration; mailbox credentials and owner cookies cannot authenticate this
 interface. Host/Origin checks, bounded bodies, no batch requests and persistent
-request limits apply. No OAuth service or automatic public deployment is implied.
+request limits apply. Optional OAuth adds constrained dynamic registration,
+explicit owner consent, mandatory S256 PKCE, resource-bound opaque tokens,
+refresh rotation/replay revocation and owner revocation in Settings. Clients,
+requests, grants and hashed tokens are persistent records; no public deployment
+is automatic. See [OAuth design](mcp-oauth-design.md).
 
 Six bounded tools expose setup metadata, prospect search/creation, idempotent
 draft preparation, send-operation status and message activity. Prepared drafts

@@ -28,6 +28,7 @@ import { queueSend, saveDraft } from "@/lib/sending";
 import { reconcileMessage } from "@/lib/reconcile";
 import { trackingConfigured, workerRequest } from "@/lib/tracking";
 import { fromZonedTime } from "date-fns-tz";
+import { revokeConnection } from "@/lib/mcp-oauth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -87,6 +88,15 @@ async function handler(request: Request, context: Context) {
       return response;
     }
     const user = await authorize(request);
+    if (
+      parts[0] === "mcp" &&
+      parts[1] === "connections" &&
+      parts.length === 3 &&
+      method === "DELETE"
+    ) {
+      await revokeConnection(user.owner.id, parts[2]);
+      return ok({ ok: true });
+    }
     if (path === "auth/logout" && method === "POST") {
       await db.session.deleteMany({
         where: { id: digest(sessionFromRequest(request)) },

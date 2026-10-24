@@ -1,14 +1,7 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures";
 import type { Snapshot } from "../../src/lib/data";
 test.beforeEach(async ({ page }) => {
-  await page.goto("/login");
-  await page
-    .getByLabel("Email address", { exact: true })
-    .fill("owner@example.test");
-  await page
-    .getByLabel("Password", { exact: true })
-    .fill("fixture-owner-password-123");
-  await page.getByRole("button", { name: "Sign in to workspace" }).click();
+  await page.goto("/overview");
   await expect(
     page.getByRole("heading", { name: "Make every conversation count." }),
   ).toBeVisible();
@@ -36,18 +29,23 @@ test("uses real empty metrics, protects exports and supports every navigation it
       page.getByRole("heading", { name: heading, exact: true }),
     ).toBeVisible();
   }
-  const anonymous = await browser.newContext();
+  const anonymous = await browser.newContext({
+    storageState: { cookies: [], origins: [] },
+  });
   const response = await anonymous.request.get(
     "http://localhost:3100/api/exports/prospects",
   );
   expect(response.status()).toBe(401);
-  const disabledMcp = await anonymous.request.post(
+  const protectedMcp = await anonymous.request.post(
     "http://localhost:3100/api/mcp",
     {
       data: { jsonrpc: "2.0", id: 1, method: "tools/list" },
     },
   );
-  expect(disabledMcp.status()).toBe(503);
+  expect(protectedMcp.status()).toBe(401);
+  expect(protectedMcp.headers()["www-authenticate"]).toContain(
+    "resource_metadata=",
+  );
   const review = await anonymous.newPage();
   await review.goto(
     "http://localhost:3100/compose?draft=mcp-owner-review-test",

@@ -6,6 +6,7 @@ import { executeSend } from "./sending";
 import { syncTracking } from "./tracking";
 import { scheduleFollowup } from "./followups";
 import { saveSentCopy } from "./mailbox";
+import { cleanupOAuth } from "./mcp-oauth";
 
 export async function withLease(id: string, work: () => Promise<void>) {
   await db.jobState.upsert({ where: { id }, create: { id }, update: {} });
@@ -137,6 +138,7 @@ export async function runTick() {
       where: { occurredAt: { lt: new Date(Date.now() - 90 * 86400_000) } },
     });
     await db.session.deleteMany({ where: { expiresAt: { lt: new Date() } } });
+    await cleanupOAuth();
     await db.rateLimit.deleteMany({
       where: { resetAt: { lt: new Date(Date.now() - 86400_000) } },
     });

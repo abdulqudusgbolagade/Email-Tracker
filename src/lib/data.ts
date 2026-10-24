@@ -4,6 +4,7 @@ import { appSettings } from "./mailbox";
 import { trackingConfigured } from "./tracking";
 import { AppError } from "./security";
 import { mcpConfiguration } from "./mcp-auth";
+import { oauthConnections } from "./mcp-oauth";
 
 export async function snapshot(params = new URLSearchParams()) {
   const settings = await appSettings();
@@ -119,6 +120,7 @@ export async function snapshot(params = new URLSearchParams()) {
     });
     if (prospect) prospects.push(prospect);
   }
+  const owner = await db.owner.findFirst({ select: { id: true } });
   return {
     serverTime: new Date(),
     settings: publicSettings,
@@ -128,6 +130,7 @@ export async function snapshot(params = new URLSearchParams()) {
     environmentMailbox: Boolean(process.env.MAILBOX_PASSWORD),
     trackingConfigured: trackingConfigured(),
     mcp: mcpConfiguration(),
+    mcpConnections: owner ? await oauthConnections(owner.id) : [],
     prospects,
     prospectCount,
     page,

@@ -61,3 +61,23 @@ it("rotates and revokes the dedicated key while retaining the application secret
     rmSync(root, { recursive: true, force: true });
   }
 });
+it("enables OAuth without creating a raw key or replacing existing credentials", () => {
+  const { root } = fixture();
+  try {
+    const result = configureMcp(root, "oauth");
+    expect(result.enabled).toBe(true);
+    expect(existsSync(result.keyFile)).toBe(false);
+    expect(parse(readFileSync(join(root, ".env")))).toMatchObject({
+      MCP_ENABLED: "true",
+      MCP_OAUTH_ENABLED: "true",
+      MCP_ACCESS_TOKEN_HASH: "",
+      MAILBOX_PASSWORD: "fixture-mailbox-preserve",
+    });
+    configureMcp(root, "revoke");
+    expect(parse(readFileSync(join(root, ".env"))).MCP_OAUTH_ENABLED).toBe(
+      "false",
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});

@@ -1,22 +1,22 @@
 # Validation report
 
-Validated on Linux with Node.js 24.19.0 and npm 11.9.0, on 23 October 2026. These results describe this machine and local test integrations. No live Hostinger authentication, prospect email or public Cloudflare deployment was performed.
+Validated on Linux with Node.js 24.19.0 and npm 11.9.0, on 24 October 2026. These results describe this machine and local test integrations. No live Hostinger authentication, prospect email or public Cloudflare deployment was performed.
 
-| Check | Result |
-| --- | --- |
-| Application unit/integration suite | **64 passed**, including a real local SMTP sink, temporary SQLite databases, authenticated API requests, mocked IMAP reconnection, accurate open-signal status rendering and both MCP transports |
-| Cloudflare Worker/D1 suite | **7 passed** in the real local Workers runtime with D1 bindings |
-| Chromium end-to-end suite | **10 passed**: five workflows on desktop and mobile viewports |
-| Type checking | Application, Next.js route types, Worker and tests passed |
-| ESLint | Passed |
-| Production build | Passed |
-| MCP protocol and access boundary | Official SDK HTTP client and a real local stdio child process passed; disabled endpoint, key authorization, Host/Origin checks, bounded requests, request limits, idempotent preparation and owner-only send confirmation tested |
-| Locked installation | `npm ci` passed; official engine checksum verification retained |
-| Database initialization | Two committed migrations applied; repeat setup reports no pending migrations |
-| Consistent backup/restore | Automated test restored a database containing records and passed SQLite integrity checking |
-| Production startup | Web process and independent job runner started; live database health returned 200 and runner heartbeat was recent |
-| Access boundary | Login page returned 200; private page redirected to login; anonymous data/export access rejected |
-| Live database fixture isolation | Zero owner, prospect, message or send-operation fixtures seeded into the actual application database |
+| Check                              | Result                                                                                                                                                                                                                           |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Application unit/integration suite | **78 passed**, including a real local SMTP sink, temporary SQLite databases, authenticated API requests, mocked IMAP reconnection, accurate open-signal status rendering, both MCP transports and OAuth                          |
+| Cloudflare Worker/D1 suite         | **7 passed** in the real local Workers runtime with D1 bindings                                                                                                                                                                  |
+| Chromium end-to-end suite          | **12 passed**: six workflows on desktop and mobile viewports                                                                                                                                                                     |
+| Type checking                      | Application, Next.js route types, Worker and tests passed                                                                                                                                                                        |
+| ESLint                             | Passed                                                                                                                                                                                                                           |
+| Production build                   | Passed                                                                                                                                                                                                                           |
+| MCP protocol and access boundary   | Official SDK HTTP client and a real local stdio child process passed; disabled endpoint, key authorization, Host/Origin checks, bounded requests, request limits, idempotent preparation and owner-only send confirmation tested |
+| Locked installation                | `npm ci` passed; official engine checksum verification retained                                                                                                                                                                  |
+| Database initialization            | Three committed migrations applied, including OAuth records; repeat setup reports no pending migrations                                                                                                                          |
+| Consistent backup/restore          | Automated test restored a database containing records and passed SQLite integrity checking                                                                                                                                       |
+| Production startup                 | Web process and independent job runner started; live database health returned 200 and runner heartbeat was recent                                                                                                                |
+| Access boundary                    | Login page returned 200; private page redirected to login; anonymous data/export access rejected                                                                                                                                 |
+| Live database fixture isolation    | Zero owner, prospect, message or send-operation fixtures seeded into the actual application database                                                                                                                             |
 
 ## Behaviors exercised
 
@@ -31,7 +31,8 @@ Validated on Linux with Node.js 24.19.0 and npm 11.9.0, on 23 October 2026. Thes
 - Desktop/mobile navigation, actual prospect creation/editing, personalized draft preview, confirmation gating, blocked unconfigured sending, settings persistence, campaign creation and CSV import.
 - Explicit distinction between Tracking off, No signal recorded and Open signal recorded; synchronized first/latest times in Africa/Lagos; no pixel loading from the status display. The additional browser scenario uses response fixtures only inside the test and checks desktop/mobile layout without adding fake messages to any live database.
 - MCP credential provisioning/rotation/revocation in temporary files without printing raw keys; preservation of mailbox/encryption settings; official SDK initialize/list/call over stateless HTTP and a real local stdio process; normal browser sessions cannot authorize MCP and the MCP key cannot authorize the browser send API.
-- MCP draft retries/concurrency, unchanged request IDs, owner edits, normalization/duplicate/suppression rules, sanitized previews without pixels, browser-confirmed tracked MIME with mocked SMTP/Worker and unconfirmed open-signal reporting. Actual HTTP browser checks verify the MCP route is disabled by default and preserve an internal draft-review link through the login redirect; external redirect targets are rejected in unit tests.
+- MCP draft retries/concurrency, unchanged request IDs, owner edits, normalization/duplicate/suppression rules, sanitized previews without pixels, browser-confirmed tracked MIME with mocked SMTP/Worker and unconfirmed open-signal reporting. Disabled-by-default behavior is covered in integration tests. Actual HTTP browser checks reject anonymous MCP requests and preserve an internal draft-review link through the login redirect; external redirect targets are rejected in unit tests.
+- OAuth discovery/registration and a complete PKCE flow using the official SDK OAuth client; exact callback/Host checks, malicious redirect and scope/audience rejection, public/confidential clients, hashed code/token/client-secret persistence, expiry, duplicate/concurrent code consumption, rotating refresh tokens with replay-family revocation, and owner-only connection revocation. Browser checks use real Next.js endpoints and a locally intercepted trusted callback for login/deny/approve/tool access/revoke on desktop and mobile. Production login limits remain unchanged; the expanded suite reuses authenticated worker sessions and explicitly clears state for anonymous checks.
 
 The mobile checks exposed long-dialog hit-target and horizontal-table problems during development; bounded mobile dialogs, explicit form labels and responsive record cards resolved them. The final full browser run passed.
 
@@ -89,8 +90,24 @@ but Wrangler authorization, D1/Worker deployment and a new tracked-message check
 remain pending. No Cloudflare credentials were requested in chat or placed in
 GitHub. The optional MCP connector can now prepare drafts, provide an owner review
 link and read outcomes/signals. A compatible local client can launch its stdio
-process; remote HTTP clients require public application hosting and bearer
-authentication. Neither mode has been connected to the owner's actual Codex
-account. Each send is confirmed in the app; autonomous SMTP submission and OAuth
-client authorization are not implemented through MCP. The HTTP/stdio acceptance
-tests used the official MCP SDK client and fixtures, not a live Codex session.
+process; remote HTTP clients require a reachable HTTPS application endpoint and
+OAuth or bearer authentication. Neither mode has been connected to the owner's
+actual Codex account. Each send is confirmed in the app; autonomous SMTP
+submission is not exposed through MCP. OAuth client authorization is implemented
+and tested locally; the actual client-managed Tunnel option remains unverified.
+The acceptance tests used the official MCP SDK clients and isolated fixtures,
+not a live Codex session. Earlier Windows/Linux CI evidence above applies to
+the exact commits identified; the latest OAuth change needs its own CI result.
+
+The official Secure MCP Tunnel documentation confirms private stdio forwarding
+is supported. The documented setup uses a restricted runtime key and associated
+workspace/organization access, not unauthenticated public HTTP. The owner must
+create/authorize the actual tunnel on their PC; no real polling or account tool
+call has been performed here.
+
+The official Linux `tunnel-client` v0.0.18 ZIP was SHA-256-verified against the
+GitHub release asset digest. Its quickstart/sample/init help ran successfully,
+and initialization in a temporary profile accepted the exact documented Node
+stdio command, retained `env:CONTROL_PLANE_API_KEY` and bound health to loopback.
+No runtime key was supplied and doctor/polling were not run. This command check
+does not establish Windows binary installation or a live OpenAI tunnel.

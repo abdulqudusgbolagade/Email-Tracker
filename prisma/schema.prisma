@@ -11,6 +11,7 @@ model Owner {
   passwordHash String
   createdAt    DateTime @default(now())
   sessions     Session[]
+  mcpGrants    McpOAuthGrant[]
 }
 model Session {
   id        String @id
@@ -214,4 +215,55 @@ model RateLimit {
   id       String @id
   count    Int @default(1)
   resetAt  DateTime
+}
+model McpOAuthClient {
+  id           String @id
+  name         String
+  redirectUris String
+  authMethod   String
+  secretHash   String?
+  createdAt    DateTime @default(now())
+  requests     McpOAuthRequest[]
+  grants       McpOAuthGrant[]
+}
+model McpOAuthRequest {
+  id            String @id
+  clientId      String
+  client        McpOAuthClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  redirectUri   String
+  state         String?
+  challenge     String
+  resource      String
+  scope         String
+  expiresAt     DateTime
+  decidedAt     DateTime?
+  ownerId       String?
+  codeHash      String? @unique
+  codeExpiresAt DateTime?
+  consumedAt    DateTime?
+  grantId       String?
+  @@index([expiresAt])
+}
+model McpOAuthGrant {
+  id         String @id
+  ownerId    String
+  owner      Owner @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  clientId   String
+  client     McpOAuthClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  resource   String
+  scope      String
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  tokens     McpOAuthToken[]
+  @@index([ownerId, revokedAt])
+}
+model McpOAuthToken {
+  hash      String @id
+  grantId   String
+  grant     McpOAuthGrant @relation(fields: [grantId], references: [id], onDelete: Cascade)
+  kind      String
+  expiresAt DateTime
+  usedAt    DateTime?
+  @@index([expiresAt])
 }
