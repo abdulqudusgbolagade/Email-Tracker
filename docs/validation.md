@@ -62,6 +62,14 @@ Review and save the draft in environment settings, then publish the environment.
 
 ## Subsequent CI and owner-reported evidence
 
+[GitHub Actions run 40046603930](https://github.com/abdulqudusgbolagade/Email-Tracker/actions/runs/40046603930)
+completed successfully for OAuth connector commit
+`c45c03a9d4e5255cbb2e036d3ed21e4b46f8e015`. Both Windows and Linux runners passed
+locked installation, three-migration setup, type checking, lint, all 78 application
+and 7 Worker tests, production build and all 12 browser checks. This includes
+OAuth consent and revocation on desktop and mobile; it does not establish a live
+Codex account/tunnel connection or Windows installation of the tunnel binary.
+
 [GitHub Actions run 40013878998](https://github.com/abdulqudusgbolagade/Email-Tracker/actions/runs/40013878998)
 completed successfully for MCP connector commit
 `0279c8178beeb6217b243962ae7951c058ec0dc0`. Both Windows and Linux runners passed
@@ -96,8 +104,8 @@ actual Codex account. Each send is confirmed in the app; autonomous SMTP
 submission is not exposed through MCP. OAuth client authorization is implemented
 and tested locally; the actual client-managed Tunnel option remains unverified.
 The acceptance tests used the official MCP SDK clients and isolated fixtures,
-not a live Codex session. Earlier Windows/Linux CI evidence above applies to
-the exact commits identified; the latest OAuth change needs its own CI result.
+not a live Codex session. Windows/Linux CI evidence above applies to the exact
+commits identified, including the OAuth implementation.
 
 The official Secure MCP Tunnel documentation confirms private stdio forwarding
 is supported. The documented setup uses a restricted runtime key and associated
@@ -111,3 +119,9 @@ and initialization in a temporary profile accepted the exact documented Node
 stdio command, retained `env:CONTROL_PLANE_API_KEY` and bound health to loopback.
 No runtime key was supplied and doctor/polling were not run. This command check
 does not establish Windows binary installation or a live OpenAI tunnel.
+
+Repeating migration with live web/runner processes initially reported a SQLite
+lock. After stopping both, the same command passed with no pending migrations.
+The documented `npm start` workflow restarted both processes; database health
+returned 200, anonymous data access returned 401, and the runner heartbeat was
+recent. Stop application processes before migrations as the update guides state.

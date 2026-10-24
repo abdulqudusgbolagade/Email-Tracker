@@ -113,6 +113,10 @@ try {
 }
 ```
 
+If doctor fails, clear the temporary key with
+`Remove-Item Env:CONTROL_PLANE_API_KEY` before closing that terminal, then address
+the reported account/network problem. Do not retry with an admin key.
+
 Check its loopback-only `/ui`, `/healthz` and `/readyz` using the port the client
 reports (normally 8080). Successful local MCP discovery alone does not prove
 active OpenAI polling: verify **healthy, ready and connected**, then make an
